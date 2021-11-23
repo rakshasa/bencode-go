@@ -208,13 +208,31 @@ var decodeTests = []SVPair{
 	SVPair{"l3:abc3:defe", []string{"abc", "def"}},
 	SVPair{"li42e3:abce", []any{42, "abc"}},
 	SVPair{"de", map[string]any{}},
+	SVPair{"d0:i1ee", map[string]any{"": 1}},
 	SVPair{"d3:cati1e3:dogi2ee", map[string]any{"cat": 1, "dog": 2}},
+	SVPair{"d2:aai1e2:bbi2e2:cci3e2:ddi4e2:eei5e2:ffi6ee", map[string]any{"aa": 1, "bb": 2, "cc": 3, "dd": 4, "ee": 5, "ff": 6}},
+}
+
+var decodeErrorTests = []string{
+	// Invalid order:
+	"d1ai1e0i0ee",
+	"d2aai2e1ai1ee",
 }
 
 func TestDecode(t *testing.T) {
 	for _, sv := range decodeTests {
 		if err := check(sv.s, sv.v); err != nil {
 			t.Error(err.Error())
+		}
+	}
+}
+
+func TestDecodeError(t *testing.T) {
+	for _, str := range decodeErrorTests {
+		_, err := Decode(bytes.NewBufferString(str))
+
+		if err == nil {
+			t.Errorf("expected decode error for '%s'", str)
 		}
 	}
 }
